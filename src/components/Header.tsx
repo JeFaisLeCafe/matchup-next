@@ -1,28 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "./ThemeProvider";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export function Header() {
-  const theme = useTheme();
   const { data: session } = useSession();
 
   return (
-    <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-3xl font-bold"
-          style={{ color: theme.colors.indigo }}
-        >
+    <header className="shadow-md bg-inherit">
+      <div className="container flex items-center justify-between px-4 py-6 mx-auto">
+        <Link href="/" className="text-3xl font-bold text-primary">
           MATCHUP
         </Link>
         <nav>
-          <ul className="flex space-x-4 items-center">
+          <ul className="flex items-center space-x-4">
             <li>
               <Link
-                href="/create-quiz"
+                href="/create"
                 className="text-indigo-600 hover:text-indigo-800"
               >
                 Create Quiz
@@ -49,7 +43,7 @@ export function Header() {
                 <li>
                   <button
                     onClick={() => signOut()}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                    className="px-4 py-2 text-white rounded bg-primary hover:bg-primary/90"
                   >
                     Logout
                   </button>
@@ -59,7 +53,7 @@ export function Header() {
               <li>
                 <button
                   onClick={() => signIn("google")}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                  className="px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700"
                 >
                   Login
                 </button>

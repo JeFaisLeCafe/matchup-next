@@ -1,31 +1,26 @@
-import { Header } from "@/components/Header";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4 text-indigo-600">
-            Welcome to MatchUp
-          </h1>
-          <p className="text-xl mb-8 text-gray-600">
-            Create and share photo quizzes with your friends!
-          </p>
-          <Link
-            href="/create-quiz"
-            className="bg-raspberry hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-          >
-            Create a Quiz
-          </Link>
-        </div>
-      </main>
-      <footer className="bg-indigo-600 text-white py-4">
-        <div className="container mx-auto px-4 text-center">
-          &copy; 2023 MatchUp. All rights reserved.
-        </div>
-      </footer>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="p-8 mb-8 rounded-full bg-secondary">
+        <h1 className="text-4xl font-bold text-primary">MATCHUP</h1>
+        <p className="text-sm text-center text-primary">Find what you like</p>
+      </div>
+
+      <div className="flex items-center justify-center w-full gap-4 space-x-4">
+        <Button
+          asChild
+          className="w-full bg-secondary text-primary hover:bg-secondary/90"
+        >
+          <Link href="/register">GET STARTED</Link>
+        </Button>
+
+        <Button asChild variant="outline" className="w-full text-primary">
+          <Link href="/login">I HAVE AN ACCOUNT</Link>
+        </Button>
+      </div>
     </div>
   );
 }

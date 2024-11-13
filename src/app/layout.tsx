@@ -1,7 +1,20 @@
+import { Poppins, Raleway } from "next/font/google";
 import { SessionProvider } from "@/components/SessionProvider";
 import "./globals.css";
+import "./globals.css";
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/ThemeProvider";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins"
+});
+
+const raleway = Raleway({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-raleway"
+});
 
 export const metadata: Metadata = {
   title: "MatchUp",
@@ -14,10 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${poppins.variable} ${raleway.variable}`}>
+      <body className="min-h-screen font-sans antialiased bg-background">
         <SessionProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <main className="flex flex-col">{children}</main>
         </SessionProvider>
       </body>
     </html>

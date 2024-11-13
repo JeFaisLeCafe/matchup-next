@@ -35,12 +35,12 @@ module.exports = {
           foreground: "hsl(var(--destructive-foreground))"
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))"
+          DEFAULT: "#D3D3D3",
+          foreground: "#425CA0"
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))"
+          DEFAULT: "#DD75A4",
+          foreground: "#FFFFFF"
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -55,6 +55,10 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)"
+      },
+      fontFamily: {
+        sans: ["Poppins", "sans-serif"],
+        raleway: ["Raleway", "sans-serif"]
       },
       keyframes: {
         "accordion-down": {

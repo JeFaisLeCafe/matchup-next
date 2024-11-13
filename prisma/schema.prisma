@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -40,14 +38,16 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
+  password      String?
   accounts      Account[]
   sessions      Session[]
   quizzes       Quiz[]
+  quizResults   QuizResult[]
 }
 
 model VerificationToken {
@@ -59,29 +59,39 @@ model VerificationToken {
 }
 
 model Quiz {
-  id        String     @id @default(cuid())
+  id        String       @id @default(cuid())
   title     String
-  questions Question[]
-  author    User       @relation(fields: [authorId], references: [id])
   authorId  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  author    User         @relation(fields: [authorId], references: [id])
+  questions Question[]
+  results   QuizResult[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 model Question {
-  id       String   @id @default(cuid())
-  text     String
-  answers  Answer[]
-  quiz     Quiz     @relation(fields: [quizId], references: [id])
-  quizId   String
-  order    Int
+  id      String   @id @default(cuid())
+  text    String
+  order   Int
+  quizId  String
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers Answer[]
 }
 
 model Answer {
   id         String   @id @default(cuid())
-  text       String
-  imageUrl   String?
-  question   Question @relation(fields: [questionId], references: [id])
-  questionId String
+  imageUrl   String
   order      Int
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model QuizResult {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  answers   String   // SQLite doesn't support JSON, so we'll store it as a string
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
 }

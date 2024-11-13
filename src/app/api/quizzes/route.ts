@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { PrismaClient } from "@prisma/client";
@@ -11,6 +12,41 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_req: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const quizzes = await prisma.quiz.findMany({
+      include: {
+        author: {
+          select: {
+            name: true
+          }
+        },
+        questions: {
+          select: {
+            id: true,
+            text: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json(quizzes);
+  } catch (error) {
+    console.error("Failed to fetch quizzes:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch quizzes" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
