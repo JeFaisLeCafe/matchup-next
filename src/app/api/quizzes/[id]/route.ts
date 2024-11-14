@@ -1,29 +1,21 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
-
-const prisma = new PrismaClient();
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/error-handler";
 
 export async function GET(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const id = params.id;
     const quiz = await prisma.quiz.findUnique({
-      where: {
-        id: params.id
-      },
+      where: { id },
       include: {
         author: {
           select: {
-            name: true
+            id: true,
+            name: true,
+            email: true
           }
         },
         questions: {
@@ -40,10 +32,6 @@ export async function GET(
 
     return NextResponse.json(quiz);
   } catch (error) {
-    console.error("Failed to fetch quiz:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch quiz" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

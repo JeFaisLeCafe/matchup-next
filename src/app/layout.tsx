@@ -1,8 +1,8 @@
 import { Poppins, Raleway } from "next/font/google";
 import { SessionProvider } from "@/components/SessionProvider";
 import "./globals.css";
-import "./globals.css";
 import type { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -30,7 +30,10 @@ export default function RootLayout({
     <html lang="en" className={`${poppins.variable} ${raleway.variable}`}>
       <body className="min-h-screen font-sans antialiased bg-background">
         <SessionProvider>
-          <main className="flex flex-col">{children}</main>
+          <main className="flex flex-col">
+            <Toaster />
+            {children}
+          </main>
         </SessionProvider>
       </body>
     </html>

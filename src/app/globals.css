@@ -20,8 +20,8 @@
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 359 67% 79%;
+    --input: 359 67% 79%;
     --ring: 221 41% 44%;
     --radius: 0.75rem;
   }
@@ -57,4 +57,31 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+/* Remove default focus styles */
+*:focus {
+  outline: none;
+}
+
+/* Add custom focus styles */
+*:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+}
+
+/* Ensure inputs still have a visual focus state */
+input:focus,
+textarea:focus,
+select:focus {
+  @apply border-primary;
+}
+
+/* Custom styles for buttons and inputs */
+.btn,
+.input {
+  @apply border-secondary bg-secondary text-primary;
+}
+
+.btn:hover {
+  @apply bg-secondary/90;
 }

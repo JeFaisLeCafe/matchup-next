@@ -1,64 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/error-handler";
+import { v2 as cloudinary } from "cloudinary";
 
-const prisma = new PrismaClient();
-
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function GET(_req: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const quizzes = await prisma.quiz.findMany({
-      include: {
-        author: {
-          select: {
-            name: true
-          }
-        },
-        questions: {
-          select: {
-            id: true,
-            text: true
-          }
-        }
-      }
-    });
-
-    return NextResponse.json(quizzes);
-  } catch (error) {
-    console.error("Failed to fetch quizzes:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch quizzes" },
-      { status: 500 }
-    );
-  }
-}
-
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const title = formData.get("title") as string;
     const authorId = formData.get("authorId") as string;
+
+    if (!title || !authorId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     const questionsData = [];
     let questionIndex = 0;
@@ -72,32 +43,33 @@ export async function POST(req: Request) {
 
       while (
         formData.has(
-          `questions[${questionIndex}][answers][${answerIndex}][text]`
+          `questions[${questionIndex}][answers][${answerIndex}][image]`
         )
       ) {
-        const answerText = formData.get(
-          `questions[${questionIndex}][answers][${answerIndex}][text]`
-        ) as string;
         const answerImage = formData.get(
           `questions[${questionIndex}][answers][${answerIndex}][image]`
-        ) as File | null;
+        ) as File;
 
-        let imageUrl = null;
+        let imageUrl = "";
         if (answerImage) {
           const arrayBuffer = await answerImage.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
-          const result = await new Promise((resolve, reject) => {
+
+          // Upload to Cloudinary
+          const result = (await new Promise((resolve, reject) => {
             cloudinary.uploader
-              .upload_stream((error, result) => {
+              .upload_stream({ folder: "matchup_answers" }, (error, result) => {
                 if (error) reject(error);
-                else resolve(result);
+                else if (result) resolve(result);
+                else reject(new Error("Upload failed"));
               })
               .end(buffer);
-          });
-          imageUrl = (result as any).secure_url;
+          })) as { secure_url: string };
+
+          imageUrl = result.secure_url;
         }
 
-        answers.push({ text: answerText, imageUrl });
+        answers.push({ imageUrl });
         answerIndex++;
       }
 
@@ -115,7 +87,6 @@ export async function POST(req: Request) {
             order: index,
             answers: {
               create: q.answers.map((a, aIndex) => ({
-                text: a.text,
                 imageUrl: a.imageUrl,
                 order: aIndex
               }))
@@ -134,10 +105,51 @@ export async function POST(req: Request) {
 
     return NextResponse.json(quiz, { status: 201 });
   } catch (error) {
-    console.error("Failed to create quiz:", error);
-    return NextResponse.json(
-      { error: "Failed to create quiz" },
-      { status: 500 }
-    );
+    return handleApiError(error);
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const authorId = searchParams.get("authorId");
+    const limit = searchParams.get("limit")
+      ? parseInt(searchParams.get("limit")!)
+      : undefined;
+    const offset = searchParams.get("offset")
+      ? parseInt(searchParams.get("offset")!)
+      : undefined;
+
+    let whereClause = {};
+    if (authorId) {
+      whereClause = { authorId };
+    }
+
+    const quizzes = await prisma.quiz.findMany({
+      where: whereClause,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        questions: {
+          include: {
+            answers: true
+          }
+        }
+      },
+      take: limit,
+      skip: offset,
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    return NextResponse.json(quizzes);
+  } catch (error) {
+    return handleApiError(error);
   }
 }

@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import toast, { Toaster } from "react-hot-toast";
 
 type Answer = {
   id: string;
@@ -29,6 +30,7 @@ type Quiz = {
 };
 
 export default function QuizPage() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: session, status } = useSession();
   const params = useParams();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -42,6 +44,31 @@ export default function QuizPage() {
     }
   }, [status, params.id]);
 
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: quiz?.title || "Quiz",
+          text: `Check out this quiz: ${quiz?.title}`,
+          url: shareUrl
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      // Fallback to copying to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied to clipboard!");
+      } catch (error) {
+        toast.error("Failed to copy link");
+        console.error("Error copying to clipboard:", error);
+      }
+    }
+  };
+
   if (status === "loading" || !quiz) {
     return <div className="text-center p-4">Loading...</div>;
   }
@@ -54,6 +81,7 @@ export default function QuizPage() {
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="bottom-center" />
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-primary">{quiz.title}</CardTitle>
@@ -92,7 +120,10 @@ export default function QuizPage() {
       ))}
 
       <div className="mt-8 text-center">
-        <Button className="bg-secondary text-primary hover:bg-secondary/80 mr-4">
+        <Button
+          className="bg-secondary text-primary hover:bg-secondary/80 mr-4"
+          onClick={handleShare}
+        >
           Share Quiz
         </Button>
         <Button>Take Quiz</Button>
