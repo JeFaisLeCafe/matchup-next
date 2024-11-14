@@ -126,7 +126,12 @@ export default function QuizPage() {
         >
           Share Quiz
         </Button>
-        <Button>Take Quiz</Button>
+        <Button
+          className="bg-primary text-white hover:bg-primary/80"
+          onClick={() => (window.location.href = `/quizzes/${params.id}/play`)}
+        >
+          Take Quiz
+        </Button>
       </div>
     </div>
   );

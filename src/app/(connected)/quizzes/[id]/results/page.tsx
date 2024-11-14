@@ -125,14 +125,16 @@ export default function QuizResultsPage() {
           </Card>
         );
       })}
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 space-y-4 flex flex-col">
         <Link href={`/quizzes/${quiz.id}/play`} passHref>
           <Button className="w-full bg-secondary text-primary hover:bg-secondary/90">
             Play Again
           </Button>
         </Link>
         <Link href="/quizzes" passHref>
-          <Button className="w-full">Back to Quizzes</Button>
+          <Button className="w-full" variant="link">
+            Back to Quizzes
+          </Button>
         </Link>
       </div>
     </div>

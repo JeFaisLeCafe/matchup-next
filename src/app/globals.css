@@ -65,15 +65,12 @@
 }
 
 /* Add custom focus styles */
-*:focus-visible {
-  @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
-}
 
 /* Ensure inputs still have a visual focus state */
 input:focus,
 textarea:focus,
 select:focus {
-  @apply border-primary;
+  @apply border-secondary border-2;
 }
 
 /* Custom styles for buttons and inputs */
