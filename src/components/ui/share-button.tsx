@@ -32,7 +32,7 @@ export function ShareButton(props: ShareButtonProps) {
 
   return (
     <Button
-      className="bg-secondary text-primary hover:bg-secondary/80 mr-4"
+      className="bg-secondary text-primary hover:bg-secondary/80"
       {...props}
       onClick={handleShare}
     >

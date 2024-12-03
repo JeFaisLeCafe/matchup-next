@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import { ShareButton } from "@/components/ui/share-button";
 
 type Answer = {
   id: string;
@@ -125,9 +126,14 @@ export default function QuizResultsPage() {
           </Card>
         );
       })}
-      <div className="mt-6 space-y-4 flex flex-col">
+      <div className="mt-6 space-y-4 flex flex-col ">
+        <ShareButton
+          title={`My results for ${quiz.title}`}
+          text={`Check out my choices for ${quiz.title}!`}
+          url={window.location.href}
+        />
         <Link href={`/quizzes/${quiz.id}/play`} passHref>
-          <Button className="w-full bg-secondary text-primary hover:bg-secondary/90">
+          <Button className="w-full bg-primary text-secondary hover:bg-primary/90">
             Play Again
           </Button>
         </Link>

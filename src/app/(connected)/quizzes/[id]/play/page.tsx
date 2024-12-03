@@ -5,8 +5,9 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckIcon } from "lucide-react";
 import { Quiz } from "../../../../../../types/db";
+import * as Checkbox from "@radix-ui/react-checkbox";
 
 export default function PlayQuizPage() {
   const params = useParams();
@@ -18,6 +19,7 @@ export default function PlayQuizPage() {
   >({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState(true);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -72,7 +74,10 @@ export default function PlayQuizPage() {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ answers: selectedAnswers })
+          body: JSON.stringify({
+            answers: selectedAnswers,
+            isPublic: isPublic
+          })
         });
 
         if (!response.ok) {
@@ -113,7 +118,7 @@ export default function PlayQuizPage() {
               <button
                 key={answer.id}
                 onClick={() => handleAnswerSelect(answer.id)}
-                className={`aspect-square overflow-hidden rounded-lg border-2 ${
+                className={`aspect-square overflow-hidden rounded-lg border-2 p-1 ${
                   selectedAnswers[currentQuestion.id] === answer.id
                     ? "border-primary"
                     : "border-transparent"
@@ -123,11 +128,31 @@ export default function PlayQuizPage() {
                 <img
                   src={answer.imageUrl}
                   alt={`Answer option ${answer.id}`}
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full h-full rounded-lg"
                 />
               </button>
             ))}
           </div>
+          {currentQuestionIndex === quiz.questions.length - 1 && (
+            <div className="flex items-center mt-4">
+              <Checkbox.Root
+                className="flex size-[20px] appearance-none items-center justify-center rounded bg-white shadow-[0_0_0_2px_black]"
+                checked={isPublic}
+                onCheckedChange={() => setIsPublic(!isPublic)}
+                id="c1"
+              >
+                <Checkbox.Indicator>
+                  <CheckIcon />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              <label
+                className="pl-[15px] text-[15px] leading-none "
+                htmlFor="c1"
+              >
+                Make my results public
+              </label>
+            </div>
+          )}
         </CardContent>
       </Card>
       <div className="flex justify-between mt-4">
