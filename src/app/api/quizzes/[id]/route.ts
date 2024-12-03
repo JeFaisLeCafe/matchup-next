@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/error-handler";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     const quiz = await prisma.quiz.findUnique({
       where: { id },
       include: {

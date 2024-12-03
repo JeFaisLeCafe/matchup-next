@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
-
+  const id = (await params).id;
   if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -18,7 +18,7 @@ export async function POST(
     const quizResult = await prisma.quizResult.create({
       data: {
         userId: session.user.id,
-        quizId: params.id,
+        quizId: id,
         answers: JSON.stringify(answers) // Convert JSON to string for SQLite storage
       }
     });
