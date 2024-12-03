@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,8 +20,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -45,9 +41,9 @@ model User {
   image         String?
   password      String?
   accounts      Account[]
-  sessions      Session[]
   quizzes       Quiz[]
   quizResults   QuizResult[]
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -62,11 +58,11 @@ model Quiz {
   id        String       @id @default(cuid())
   title     String
   authorId  String
-  author    User         @relation(fields: [authorId], references: [id])
-  questions Question[]
-  results   QuizResult[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+  questions Question[]
+  author    User         @relation(fields: [authorId], references: [id])
+  results   QuizResult[]
 }
 
 model Question {
@@ -74,8 +70,8 @@ model Question {
   text    String
   order   Int
   quizId  String
-  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   answers Answer[]
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
 }
 
 model Answer {
@@ -90,7 +86,7 @@ model QuizResult {
   id        String   @id @default(cuid())
   userId    String
   quizId    String
-  answers   String   // SQLite doesn't support JSON, so we'll store it as a string
+  answers   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   quiz      Quiz     @relation(fields: [quizId], references: [id])
